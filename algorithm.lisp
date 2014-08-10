@@ -68,10 +68,17 @@
         ((= n 0) 0)
         (t (nth 0 m))))))
 
+;gcd
+(defun gcd_m (a b)
+  "using gcd(x,y) = gcd (x-y,y)"
+  (if (= 0 b)
+    a
+    (gcd b (mod a b))))
 
 ;;HEAP SORT
-
 (defun heapsort (seq)
-  seq
-  )
+  "use a minify heap to sort"
+  (labels ((heapify (seq start len)
+             seq))
+    (heapify seq 0 (length seq))))
 
