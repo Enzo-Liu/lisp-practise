@@ -42,26 +42,26 @@
    reduce this problem from '+' to '*' so that a^n
    can be calculated as a^x1*a^x2*a^xn (x1,x2...xn are all 2^n)"
   (labels (
-    (decompose (n) (format nil "~B" n))
-    (listMulti (l1 l2) (+ (* (nth 0 l1) (nth 0 l2)) (+ (* (nth 1 l1) (nth 1 l2)))))
-    (multi (m1 m2) (list
-                     (listMulti (list (nth 0 m1) (nth 1 m1))
-                                (list (nth 0 m2) (nth 2 m2)))
-                     (listMulti (list (nth 0 m1) (nth 1 m1))
-                                (list (nth 1 m2) (nth 3 m2)))
-                     (listMulti (list (nth 2 m1) (nth 3 m1))
-                                (list (nth 0 m2) (nth 2 m2)))
-                     (listMulti (list (nth 2 m1) (nth 3 m1))
-                                (list (nth 1 m2) (nth 3 m2)))))
-    (multiMatrixBase2 (matrix n value)
-                      (cond
-                        ((string= value "0") *0-matrix*)
-                        ((<= n 1) matrix)
-                        (t (multiMatrixBase2 (multi matrix matrix) (1- n) value))))
-    (multiMatrix (matrix bits len)
-      (if (= 0 len)
-        *0-matrix*
-        (multi (multiMatrixBase2 matrix len (subseq bits 0 1)) (multiMatrix matrix (subseq bits 1 len) (1- len))))))
+           (decompose (n) (format nil "~B" n))
+           (listMulti (l1 l2) (+ (* (nth 0 l1) (nth 0 l2)) (+ (* (nth 1 l1) (nth 1 l2)))))
+           (multi (m1 m2) (list
+                            (listMulti (list (nth 0 m1) (nth 1 m1))
+                                       (list (nth 0 m2) (nth 2 m2)))
+                            (listMulti (list (nth 0 m1) (nth 1 m1))
+                                       (list (nth 1 m2) (nth 3 m2)))
+                            (listMulti (list (nth 2 m1) (nth 3 m1))
+                                       (list (nth 0 m2) (nth 2 m2)))
+                            (listMulti (list (nth 2 m1) (nth 3 m1))
+                                       (list (nth 1 m2) (nth 3 m2)))))
+           (multiMatrixBase2 (matrix n value)
+             (cond
+               ((string= value "0") *0-matrix*)
+               ((<= n 1) matrix)
+               (t (multiMatrixBase2 (multi matrix matrix) (1- n) value))))
+           (multiMatrix (matrix bits len)
+             (if (= 0 len)
+               *0-matrix*
+               (multi (multiMatrixBase2 matrix len (subseq bits 0 1)) (multiMatrix matrix (subseq bits 1 len) (1- len))))))
     (let ((m (multiMatrix *matrix* (decompose (1- n)) (length (decompose (1- n))))))
       (cond
         ((< n 0) "wrong input")
@@ -82,3 +82,12 @@
              seq))
     (heapify seq 0 (length seq))))
 
+
+;;QUICK SORT
+(defun quicksort (seq)
+  (if (>= 1 (length seq)) seq
+      (let* ((key (first seq))
+             (less (remove-if-not (lambda (x) (< x key)) seq))
+             (more (remove-if-not (lambda (x) (> x key)) seq))
+             (same (remove-if-not (lambda (x) (= x key)) seq)))
+        (append (quicksort less) same (quicksort more)))))
