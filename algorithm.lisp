@@ -75,14 +75,6 @@
     a
     (gcd b (mod a b))))
 
-;;HEAP SORT
-(defun heapsort (seq)
-  "use a minify heap to sort"
-  (labels ((heapify (seq start len)
-             seq))
-    (heapify seq 0 (length seq))))
-
-
 ;;QUICK SORT
 (defun quicksort (seq)
   (if (>= 1 (length seq)) seq
@@ -91,3 +83,33 @@
              (more (remove-if-not (lambda (x) (> x key)) seq))
              (same (remove-if-not (lambda (x) (= x key)) seq)))
         (append (quicksort less) same (quicksort more)))))
+
+(defun quicksort2 (seq)
+  (if (>= 1 (length seq)) seq
+      (labels ((partition (seq key)
+                 (loop for x in seq
+                    when (< x key) collect x into less
+                    when (= x key) collect x into same
+                    when (> x key) collect x into more
+                    finally (return (values less same more)))))
+        (multiple-value-bind (less same more) (partition seq (first seq))
+          (append (quicksort2 less) same (quicksort2 more))))))
+
+;;HEAP SORT
+(defun heapsort (a &optional (count (length a)))
+  (macrolet ((ref (i) `(aref a ,i))
+             (swap (i j) `(rotatef (ref ,i) (ref ,j)))
+             (ref< (i j) `(< (ref ,i) (ref ,j))))
+    (labels ((sift (root count)
+               (let ((c1 (+ (* 2 root) 1))
+                     (c2 (+ (* 2 root) 2)))
+                 (when (< c1 count)
+                   (let ((c (if (and (< c2 count) (ref< c1 c2)) c2 c1)))
+                     (when (ref< root c)
+                       (swap root c)
+                       (sift c count)))))))
+      (loop for start from (1- (floor count 2)) downto 0
+         do (sift start count))
+      (loop for end from (1- count) downto 1
+         do (swap 0 end) (sift 0 end))))
+  a)
