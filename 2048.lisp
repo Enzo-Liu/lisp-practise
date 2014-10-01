@@ -105,24 +105,29 @@
   (board-loop (row 0 *height*) (col 0 *width*) thereis
     (= (bval row col) *won-value*)))
 
-(defmethod p-world ((this world))
-  (loop for row from 0 to *height* do
-       (progn
-         (loop for col from 0 to *width* do
-              (format t "~a " (bval row col)))
-         (format t "~%"))))
-
 (defvar *world* (make-instance 'world))
 
+(ql:quickload 'cl-charms)
+
+(defmethod p-world ((this world))
+  (loop for row from 0 to *height* do
+       (loop for col from 0 to *width* do
+            (charms:mvaddstr (* 5 row) (* 5 col) (format nil "~a " (bval row col)))))
+(charms:refresh))
+
 (defun main ()
+  (charms:initscr)
+  (charms:clear)
+  (charms:curs-set 0)
   (random-insert *world*)
-  (do () ((lostp *world*) (format t "lost"))
+  (do () ((lostp *world*) (format nil "lost"))
     (p-world *world*)
-    (let* ((in (read-line))
-          (changed (cond ((string-equal "j" in) (down *world*))
-                         ((string-equal "k" in) (up *world*))
-                         ((string-equal "l" in) (right *world*))
-                         ((string-equal "h" in) (left *world*))
-                         ((string-equal "q" in) (return))
-                         (t nil))))
-      (when changed (random-insert *world*)))))
+    (let* ((in (code-char (cl-charms:getch)))
+           (changed (cond ((char-equal #\j in) (down *world*))
+                          ((char-equal #\k in) (up *world*))
+                          ((char-equal #\l in) (right *world*))
+                          ((char-equal #\h in) (left *world*))
+                          ((char-equal #\q in) (return))
+                          (t nil))))
+      (when changed (random-insert *world*))))
+  (charms:endwin))
