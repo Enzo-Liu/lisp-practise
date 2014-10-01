@@ -27,20 +27,23 @@
           (make-instance 'tile :value 0))))
 
 (defmethod left ((this world))
-  (flet ((shift (var)
-           (loop for 0-index from 0 to *width*
-              when (= 0 (bval var 0-index)) do
-                (loop for !0-index from (1+ 0-index) to *width*
-                   when (not (= 0 (bval var !0-index)))  do
-                     (progn (setf (bval var 0-index) (bval var !0-index))
-                            (setf (bval var !0-index) 0)
-                            (return)))))
-         (combine (var)
-           (loop for cur from 0 to (1- *width*)
-              when (= (bval var cur) (bval var (1+ cur))) do
-                (progn (setf (bval var cur) (* 2 (bval var cur)))
-                       (setf (bval var (1+ cur)) 0)))))
-    (dotimes (i (1+ *height*)) (shift i) (combine i) (shift i))))
+  (let ((changed nil))
+    (flet ((shift (var)
+             (loop for 0-index from 0 to *width*
+                when (= 0 (bval var 0-index)) do
+                  (loop for !0-index from (1+ 0-index) to *width*
+                     when (not (= 0 (bval var !0-index)))  do
+                       (progn (setf (bval var 0-index) (bval var !0-index))
+                              (setf (bval var !0-index) 0)
+                              (setf changed t)
+                              (return)))))
+           (combine (var)
+             (loop for cur from 0 to (1- *width*)
+                when (= (bval var cur) (bval var (1+ cur))) do
+                  (progn (setf (bval var cur) (* 2 (bval var cur)))
+                         (setf (bval var (1+ cur)) 0)))))
+      (dotimes (i (1+ *height*)) (shift i) (combine i) (shift i)))
+    changed))
 
 ;;;this function rotates the board by 90 degrees counter-clockwise
 (defmethod rotate ((this world))
@@ -48,24 +51,30 @@
 
 ;;;to move right, rotate twice, left, rotate twice
 (defmethod right ((this world))
-  (progn
-    (dotimes (i 2) (rotate this))
-    (left this)
-    (dotimes (i 2) (rotate this))))
+  (let ((changed nil))
+    (progn
+      (dotimes (i 2) (rotate this))
+      (setf changed (left this))
+      (dotimes (i 2) (rotate this)))
+    changed))
 
 ;;;to move up, rotate once, left, rotate 3 times
 (defmethod up ((this world))
-  (progn
-    (rotate this)
-    (left this)
-    (dotimes (i 3) (rotate this))))
+  (let ((changed nil))
+    (progn
+      (rotate this)
+      (setf changed (left this))
+      (dotimes (i 3) (rotate this)))
+    changed))
 
 ;;;to move down rotate three times, left, rotate once
 (defmethod down ((this world))
-  (progn
-    (dotimes (i 3) (rotate this))
-    (left this)
-    (rotate this)))
+  (let ((changed nil))
+    (progn
+      (dotimes (i 3) (rotate this))
+      (setf changed (left this))
+      (rotate this))
+    changed))
 
 (defmethod not-fullp ((this world))
   (board-loop (row 0 *height*) (col 0 *width*) thereis (= 0 (bval row col))))
@@ -97,7 +106,23 @@
     (= (bval row col) *won-value*)))
 
 (defmethod p-world ((this world))
-  (board-loop (row 0 *height*) (col 0 *width*) do (princ (bval row col)))
-  (format t "~%"))
+  (loop for row from 0 to *height* do
+       (progn
+         (loop for col from 0 to *width* do
+              (format t "~a " (bval row col)))
+         (format t "~%"))))
 
 (defvar *world* (make-instance 'world))
+
+(defun main ()
+  (random-insert *world*)
+  (do () ((lostp *world*) (format t "lost"))
+    (p-world *world*)
+    (let* ((in (read-line))
+          (changed (cond ((string-equal "j" in) (down *world*))
+                         ((string-equal "k" in) (up *world*))
+                         ((string-equal "l" in) (right *world*))
+                         ((string-equal "h" in) (left *world*))
+                         ((string-equal "q" in) (return))
+                         (t nil))))
+      (when changed (random-insert *world*)))))
