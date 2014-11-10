@@ -33,4 +33,4 @@
          (make-comparison-list (fields)
            (loop while fields collecting
                 (make-comparison (pop fields) (pop fields)))))
-    `#'(lambda (x) (and ,@ (make-comparison-list clauses)))))
+    `#'(lambda (x) (and ,@(make-comparison-list clauses)))))
