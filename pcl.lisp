@@ -34,3 +34,10 @@
            (loop while fields collecting
                 (make-comparison (pop fields) (pop fields)))))
     `#'(lambda (x) (and ,@(make-comparison-list clauses)))))
+
+;;;chapter 5
+(defun ascii (fn start end)
+  (loop for index from start to end do
+       (loop repeat (funcall fn index) do
+            (format t "*"))
+       (format t "~%")))
