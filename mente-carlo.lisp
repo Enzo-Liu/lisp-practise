@@ -1,5 +1,5 @@
 ;;; lecture 5a in sicp
-;;; talking about assign and state and envrionment evaluate model
+;;; talking about assign and state and environment evaluate model
 ;;; mente-carlo the calcuate pai
 
 (defconstant +LIMIT+ 100000000)
