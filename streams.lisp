@@ -27,18 +27,38 @@
 (defun add-streams (s1 s2)
   (map-stream #'+ s1 s2))
 
+(defun filter-stream (fn stream)
+  (if (funcall fn (car-stream stream))
+      (cons-stream (car-stream stream)
+                   (filter-stream fn (cdr-stream stream)))
+      (filter-stream fn (cdr-stream stream))))
+
 (defparameter *fib*
   (cons-stream 0
                (cons-stream 1
                             (add-streams (cdr-stream *fib*)
                                          *fib*))))
+
+(defun fibgen (a b)
+  (cons-stream a (fibgen b (+ a b))))
+
+(defparameter *nfib* (fibgen 0 1))
+
+(defparameter *even-fib* (filter-stream #'(lambda (x) (evenp x)) *nfib*))
+
 (defun ref-stream (s n)
   (if (= n 0)
       (car-stream s)
       (ref-stream (cdr-stream s) (1- n))))
 
+(defun nfib (n)
+  (ref-stream *nfib* n))
+
 (defun fib (n)
   (ref-stream *fib* n))
+
+(defun even-fib (n)
+  (ref-stream *even-fib* n))
 
 (defun ei (low high)
   (if (> low high)
