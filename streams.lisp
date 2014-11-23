@@ -1,3 +1,6 @@
+;;; streams learn from sicp
+;;; translate into common lisp
+;;; code begins
 
 (defconstant +EMPTY-STREAM+ nil)
 
@@ -33,6 +36,20 @@
                    (filter-stream fn (cdr-stream stream)))
       (filter-stream fn (cdr-stream stream))))
 
+(defun stream-nullp (stream)
+  (null stream))
+
+(defun ref-stream (s n)
+  (if (= n 0)
+      (car-stream s)
+      (ref-stream (cdr-stream s) (1- n))))
+
+(defun print-stream (stream n)
+  (if (<= n 0)
+      nil
+      (progn (print (car-stream stream))
+             (print-stream (cdr-stream stream) (1- n)))))
+
 (defparameter *fib*
   (cons-stream 0
                (cons-stream 1
@@ -46,10 +63,20 @@
 
 (defparameter *even-fib* (filter-stream #'(lambda (x) (evenp x)) *nfib*))
 
-(defun ref-stream (s n)
-  (if (= n 0)
-      (car-stream s)
-      (ref-stream (cdr-stream s) (1- n))))
+(defparameter *integer* (cons-stream 1 (map-stream #'(lambda (x) (1+ x)) *integer*)))
+
+(defparameter *integer-2* (cons-stream 2 (map-stream #'(lambda (x) (1+ x)) *integer*)))
+
+(defun sieve (stream)
+  (cons-stream (car-stream stream)
+               (sieve (filter-stream #'(lambda (x) (not (= (mod x (car-stream stream)) 0)))
+                                     (cdr-stream stream)))))
+
+(defparameter *prime* (sieve *integer-2*))
+
+(defparameter *ones* (cons-stream 1 *ones*))
+
+(defparameter *integer-3* (cons-stream 1 (add-streams *integer-3* *ones*)))
 
 (defun nfib (n)
   (ref-stream *nfib* n))
