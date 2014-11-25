@@ -69,7 +69,7 @@
 
 (defun sieve (stream)
   (cons-stream (car-stream stream)
-               (sieve (filter-stream #'(lambda (x) (not (= (mod x (car-stream stream)) 0)))
+               (sieve (filter-stream #'(lambda (x) (/= (mod x (car-stream stream)) 0))
                                      (cdr-stream stream)))))
 
 (defparameter *prime* (sieve *integer-2*))
