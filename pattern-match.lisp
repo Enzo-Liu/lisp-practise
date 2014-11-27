@@ -1,6 +1,52 @@
-;;; this program is for sicp lecture 4b
-;;; it describes a common method to do pattern matching and calculate
-;;; lang common lisp
+;;; pattern-match.lisp ---
+;;
+;; Filename: pattern-match.lisp
+;; Description:
+;; Author: Liu Enze
+;; Maintainer:
+;; Created: Fri Nov 28 07:50:20 2014 (+0800)
+;; Version:
+;; Package-Requires: ()
+;; Last-Updated: Fri Nov 28 07:50:20 2014 (+0800)
+;;           By: Liu Enze
+;;     Update #: 1
+;; URL:
+;; Doc URL:
+;; Keywords:
+;; Compatibility:
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;; Commentary:
+;;
+;; this program is for sicp lecture 4b
+;; it describes a common method to do pattern matching and calculate
+;; lang common lisp
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;; Change Log:
+;;
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or (at
+;; your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;; Code:
+
 
 
 (defconstant +FAILED+ 'failed)
@@ -194,3 +240,6 @@
 (equal (deriv '(dd (+ x y) x))          1)
 (equal (deriv '(dd (* x y) x))         'y)
 (equal (deriv '(dd (+ (* x y) x) x))   '(+ 1 y))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; pattern-match.lisp ends here
