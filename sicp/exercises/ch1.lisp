@@ -7,9 +7,9 @@
 ;; Created: Sat Nov 29 17:30:04 2014 (+0800)
 ;; Version:
 ;; Package-Requires: ()
-;; Last-Updated: Sat Nov 29 22:27:07 2014 (+0800)
+;; Last-Updated: Sun Nov 30 00:58:29 2014 (+0800)
 ;;           By: Liu Enze
-;;     Update #: 13
+;;     Update #: 15
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -134,16 +134,16 @@ function to (a b). "
 (defun A (x y)
   (cond ((= y 0) 0)
         ((= x 0 ) (* 2 y))
-        ((= x 1 ) 2)
+        ((= y 1 ) 2)
         (t (A (1- x) (A x (1- y))))))
 
-(A 1 10) ;; 2
-(A 2 4) ;; 0
-(A 3 3) ;; 0
+(A 1 10) ;; 1024
+(A 2 4) ;; 65536
+(A 3 3) ;; 65536
 
 (defun f (n) (A 0 n)) ; ==> f(n)=2n
-(defun g (n) (A 1 n)) ; ==> g(n)=2 (n!=0) g(n)=0 (n=0)
-(defun h (n) (A 2 n)) ; ==> h(n)=0 (n>=0) infinite loop (n<0)
+(defun g (n) (A 1 n)) ; ==> g(n)=2^n (n>0);g(n)=0 (n=0); infinite loop (n<0)
+(defun h (n) (A 2 n)) ; ==> h(n)=2^(2^n) (n>0);h(n)=0;infinite loop (n<0)
 
 ;;Ex11
 (defun f-r (n)
