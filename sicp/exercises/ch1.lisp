@@ -7,9 +7,9 @@
 ;; Created: Sat Nov 29 17:30:04 2014 (+0800)
 ;; Version:
 ;; Package-Requires: ()
-;; Last-Updated: Sun Nov 30 00:58:29 2014 (+0800)
+;; Last-Updated: Sun Nov 30 12:40:06 2014 (+0800)
 ;;           By: Liu Enze
-;;     Update #: 15
+;;     Update #: 27
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -44,6 +44,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;; Code:
+
+;;Utility
+(defun id (x) x)
 
 ;;Ex1
 
@@ -105,7 +108,7 @@ function to (a b). "
     (sqrt-iter 2 1)))
 
 ;;Ex8
-(defun my-cube (n)
+(defun my-cube-root (n)
   "don't work for 0..."
   (labels ((good-enough (guess last)
              (< (/ (abs  (- guess last)) last) 0.000001))
@@ -211,6 +214,195 @@ function to (a b). "
     (fib-iter 0 1 0 1 n)))
 (dotimes (i 10) (print (my-fast-fib i)))
 
+;;Ex21
+(defun smallest-divisor (n)
+  (loop for i from 2 to n
+     when (= 0 (mod n i)) return i))
+
+(mapcar #'smallest-divisor '(199 1999 19999)) ; ==> (199 1999 7)
+
+;;Ex22,23
+(defun next-odd (n) (if (evenp n ) (1+ n) (+ n 2)))
+(defun smallest-divisor-1 (n)
+  (do ((i 2 (next-odd i)))
+      ((= 0 (mod n i)) i)))
+(defun my-primep (n)
+  (if (= (smallest-divisor-1 n) n) t nil))
+(defun next-prime (n)
+  (do ((i n (next-odd i)))
+      ((my-primep i) i)))
+
+(defun smallest-primes (start num)
+  (do* ((sp (next-prime start) (next-prime (1+ sp)))
+        (i 1 (1+ i))
+        (res (list sp) (append res (list sp))))
+       ((= i num) res)))
+
+(time (smallest-primes 1000 3))
+(time (smallest-primes 10000 3))
+(time (smallest-primes 100000 3))
+
+;;Ex24-28
+;;...
+
+;;Ex29
+(defun simpson (fn n a b)
+  (let ((h (/ (- b a) n)))
+    (do* ((i 0 (1+ i))
+          (y (funcall fn (+ a (* i h))) (funcall fn (+ a (* i h))))
+          (sum y (+ sum (* y (cond ((= i n) 1)
+                                   ((evenp (- i n)) 2)
+                                   (t 4))))))
+         ((= i n) (/ (* h sum) 3)))))
+(defun my-cube (x) (* x x x))
+(simpson #'my-cube 100 0 1) ;; ==> 1/4
+(simpson #'my-cube 10000 0 1) ;; ==> 1/4
+
+;;Ex30
+(defun sum (term a next b)
+  "Original recusive version."
+  (if (> a b)
+      0
+      (+ (funcall term a)
+         (sum term (funcall next a) next b))))
+(defun my-sum (term a next b)
+  "Iterate version."
+  (labels ((sum-iter (cur res)
+             (if (> cur b)
+                 res
+                 (sum-iter (funcall next cur) (+ (funcall term cur) res)))))
+    (sum-iter a 0)))
+
+
+;;Ex31
+(defun my-product (term a next b)
+  "Iterate version."
+  (labels ((product-iter (cur res)
+             (if (> cur b)
+                 res
+                 (product-iter (funcall next cur) (* (funcall term cur) res)))))
+    (product-iter a 1)))
+
+(defun my-product-1 (term a next b)
+  "Recursive version."
+  (if (> a b)
+      1
+      (* (funcall term a)
+         (my-product-1 term (funcall next a) next b))))
+
+(defun factorial (n)
+  (my-product #'(lambda (x) x) 1 #'1+ n))
+
+(factorial 8);; ==> 40320
+
+(defun square (x) (* x x))
+(defun cal-pi (n)
+  (* (/ 8 (* 2 (1+ n)))
+     (my-product #'(lambda (x) (square (/ (* 2 (1+ x)) (+ 1 (* 2 x)))))
+                 1
+                 #'1+
+                 n)))
+
+(float (cal-pi 1000)) ;; ==> 3.1423774
+
+;;Ex32
+(defun accumulate (combiner base term a next b)
+  (labels ((iter (cur res)
+             (if (> cur b)
+                 res
+                 (iter (funcall next cur)
+                       (funcall combiner res (funcall term cur))))))
+    (iter a base)))
+(defun a-sum (term a next b) (accumulate #'+ 0 term a next b))
+(defun a-product (term a next b) (accumulate #'* 1 term a next b))
+
+(a-product #'(lambda (x) x) 1 #'1+ 10 );; ==>3628800
+
+;;Ex33
+(defun filter-accumulate (combiner filter base term a next b)
+  (labels ((iter (cur res)
+             (if (> cur b)
+                 res
+                 (iter (funcall next cur)
+                       (if (funcall filter cur)
+                           (funcall combiner res (funcall term cur))
+                           res)))))
+    (iter a base)))
+(defun sum-prime (a b)
+  (filter-accumulate #'+ #'my-primep 0 #'id a #'1+ b)) ;; (sum-prime 2 5) ==> 10
+(defun product-relatively-prime-less-than-n (n)
+  (filter-accumulate #'* #'(lambda (x) (= 1 (gcd x n))) 1 #'id 1 #'1+ n)) ;;(product-relatively-prime-less-than-n 5) ==> 24
+
+;;Ex34
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; (ex34-f #'ex34-f)
+;; 2 fell through ETYPECAñSE expression.
+;; Wanted one of (SYMBOL FUNCTION).
+;;[Condition of type SB-KERNEL:CASE-FAILURE]
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun ex34-f (g)
+  (funcall g 2))
+
+;;Ex35
+(defparameter *tolerance* 0.0000001)
+(defun fix-point (f guess)
+  (labels ((closep (v1 v2)
+             (< (abs (-  v1 v2)) *tolerance*))
+           (try (guess)
+             (let ((next (funcall f guess)))
+               (if (closep next guess)
+                   next
+                   (try next)))))
+    (try guess)))
+(defun gold-radio-gen (x) (+ 1 (/ 1 x)))
+(fix-point #'gold-radio-gen 1)
+
+;;Ex36
+(defun fix-point-print (f guess)
+  (labels ((closep (v1 v2)
+             (< (abs (-  v1 v2)) *tolerance*))
+           (try (guess)
+             (let ((next (funcall f guess)))
+               (print guess)
+               (if (closep next guess)
+                   next
+                   (try next)))))
+    (try guess)))
+
+;;Ex37-40 ...
+
+;;Ex41
+(defun my-double (f)
+  (lambda (x) (funcall f (funcall f x))))
+
+(funcall (funcall (my-double (my-double #'my-double)) #'1+) 5)
+
+;;Ex42
+(defun compose (f g)
+  (lambda (x) (funcall f (funcall g x))))
+
+(funcall (compose #'square #'1+) 6 ) ;;==> 49
+
+;;Ex43
+(defun repeated (f n)
+  (if (= n 1)
+      f
+      (compose f (repeated f (1- n)))))
+
+(funcall (repeated #'square 2) 5) ;==> 625
+
+;;Ex44
+(defparameter *dx* 0.0001)
+(defun smooth (f)
+  (lambda (x) (/ (+ (funcall f (+ x *dx*))
+               (funcall f (- x *dx*))
+               (funcall f x))
+            3)))
+
+(defun smooth-n (f n)
+  (repeated #'smooth n))
+
+;;Ex45-46...
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; ch1.lisp ends here
