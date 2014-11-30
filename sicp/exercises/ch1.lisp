@@ -400,7 +400,7 @@ function to (a b). "
             3)))
 
 (defun smooth-n (f n)
-  (repeated #'smooth n))
+  (funcall (repeated #'smooth n) f))
 
 ;;Ex45-46...
 
