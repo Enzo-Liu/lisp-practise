@@ -7,9 +7,9 @@
 ;; Created: Sat Nov 29 17:30:04 2014 (+0800)
 ;; Version:
 ;; Package-Requires: ()
-;; Last-Updated: Sun Nov 30 12:40:06 2014 (+0800)
+;; Last-Updated: Sun Nov 30 15:06:26 2014 (+0800)
 ;;           By: Liu Enze
-;;     Update #: 27
+;;     Update #: 28
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -79,6 +79,11 @@
 (defun sum-of-largest-two (a b c)
   (let ((min (min a b c)))
     (- (+ a b c) min)))
+
+(defun sum-of-square-of-largest-two (a b c)
+  (if (or (> a b) (> a c))
+      (+ (square a) (square (max b c)))
+      (+ (square b) (square c))))
 
 ;;Ex4
 (defun a-plus-abs-b (a b)
