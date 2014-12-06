@@ -7,9 +7,9 @@
 ;; Created: Sun Nov 30 22:18:14 2014 (+0800)
 ;; Version:
 ;; Package-Requires: ()
-;; Last-Updated: Wed Dec  3 10:29:39 2014 (+0800)
+;; Last-Updated: Sat Dec  6 11:01:31 2014 (+0800)
 ;;           By: Liu Enze
-;;     Update #: 11
+;;     Update #: 12
 ;; URL:
 ;; Doc URL:
 ;; Keywords: sicp exercise chapter2
@@ -306,16 +306,8 @@
 ;; simplify the problem by assuming that all numbers are positive.
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; product of precents of two intervals
-(* (percent-interval x) (percent-interval y))
-;; ==>
-(/ (* (width x) (width y)) (* (center-interval x) (center-interval y)))
-;; if x y all positive , the percent of product of two intervals is  ==>
-(percent-interval (make-interval (* (lower-bound x)
-                                    (lower-bound y))
-                                 (* (- (* 2 (center-interval x)) (lower-bound x))
-                                    (- (* 2 (center-interval y)) (lower-bound y)))))
-;; ==>
 
+;; just math
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Exercise 2.14. Demonstrate that Lem is right. Investigate the behavior of the
