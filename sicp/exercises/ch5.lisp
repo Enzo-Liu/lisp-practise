@@ -7,9 +7,9 @@
 ;; Created: Tue Dec  2 19:33:22 2014 (+0800)
 ;; Version:
 ;; Package-Requires: ()
-;; Last-Updated: Tue Dec  9 19:21:41 2014 (+0800)
-;;           By: Liu Enze
-;;     Update #: 21
+;; Last-Updated: Tue Dec  9 22:21:08 2014 (+0800)
+;;           By: 王 玉
+;;     Update #: 30
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -272,18 +272,33 @@
 ;; 5.4.
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; first ,write the simulator  TODO
-(defun make-machine () nil)
+(defmacro make-machine (registers ops controller-text)
+  (let ((machine (make-new-machine)))
+    (mapcar #'(lambda (register-name)
+                (funcall
+                 (funcall machine 'allocate-register) register-name))
+            registers)
+    (funcall (funcall machine 'install-operations) ops)
+    (funcall (funcall machine 'install-instruction-sequence)
+             (assemble controller-text machine))
+    machine))
 
+(defun assemble (&rest x)
+  (lambda (x) x))
 
-(define (make-machine register-names ops controller-text)
-    (let ((machine (make-new-machine)))
-      (for-each (lambda (register-name)
-                  ((machine 'allocate-register) register-name))
-                register-names)
-      ((machine 'install-operations) ops)
-      ((machine 'install-instruction-sequence)
-       (assemble controller-text machine))
-      machine))
+(defun make-new-machine ()
+  (lambda (x)
+    (lambda (x) x)))
+
+;; (define (make-machine register-names ops controller-text)
+;;     (let ((machine (make-new-machine)))
+;;       (for-each (lambda (register-name)
+;;                   ((machine 'allocate-register) register-name))
+;;                 register-names)
+;;       ((machine 'install-operations) ops)
+;;       ((machine 'install-instruction-sequence)
+;;        (assemble controller-text machine))
+;;       machine))
 
 (define (make-register name)
     (let ((contents '*unassigned*))
@@ -321,7 +336,7 @@
       dispatch))
 
 (define (pop stack)
-  (stack 'pop))
+    (stack 'pop))
 (define (push stack value)
     ((stack 'push) value))
 
@@ -331,10 +346,10 @@
           (stack (make-stack))
           (the-instruction-sequence '()))
       (let ((the-ops
-              (list (list 'initialize-stack
-                          (lambda () (stack 'initialize)))))
+             (list (list 'initialize-stack
+                         (lambda () (stack 'initialize)))))
             (register-table
-              (list (list 'pc pc) (list 'flag flag))))
+             (list (list 'pc pc) (list 'flag flag))))
         (define (allocate-register name)
             (if (assoc name register-table)
                 (error "Multiply defined register: " name)
