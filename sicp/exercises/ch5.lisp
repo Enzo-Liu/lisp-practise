@@ -7,9 +7,9 @@
 ;; Created: Tue Dec  2 19:33:22 2014 (+0800)
 ;; Version:
 ;; Package-Requires: ()
-;; Last-Updated: Tue Dec  9 22:21:08 2014 (+0800)
-;;           By: 王 玉
-;;     Update #: 30
+;; Last-Updated: Thu Dec 11 14:48:29 2014 (+0800)
+;;           By: Liu Enze
+;;     Update #: 42
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -271,129 +271,7 @@
 ;; Exercise 5.7. Use the simulator to test the machines you designed in exercise
 ;; 5.4.
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; first ,write the simulator  TODO
-(defmacro make-machine (registers ops controller-text)
-  (let ((machine (make-new-machine)))
-    (mapcar #'(lambda (register-name)
-                (funcall
-                 (funcall machine 'allocate-register) register-name))
-            registers)
-    (funcall (funcall machine 'install-operations) ops)
-    (funcall (funcall machine 'install-instruction-sequence)
-             (assemble controller-text machine))
-    machine))
-
-(defun assemble (&rest x)
-  (lambda (x) x))
-
-(defun make-new-machine ()
-  (lambda (x)
-    (lambda (x) x)))
-
-;; (define (make-machine register-names ops controller-text)
-;;     (let ((machine (make-new-machine)))
-;;       (for-each (lambda (register-name)
-;;                   ((machine 'allocate-register) register-name))
-;;                 register-names)
-;;       ((machine 'install-operations) ops)
-;;       ((machine 'install-instruction-sequence)
-;;        (assemble controller-text machine))
-;;       machine))
-
-(define (make-register name)
-    (let ((contents '*unassigned*))
-      (define (dispatch message)
-          (cond ((eq? message 'get) contents)
-                ((eq? message 'set)
-                 (lambda (value) (set! contents value)))
-                (else
-                 (error "Unknown request -- REGISTER" message))))
-      dispatch))
-(define (get-contents register)
-    (register 'get))
-(define (set-contents! register value)
-    ((register 'set) value))
-
-(define (make-stack)
-    (let ((s '()))
-      (define (push x)
-          (set! s (cons x s)))
-      (define (pop)
-          (if (null? s)
-              (error "Empty stack -- POP")
-              (let ((top (car s)))
-                (set! s (cdr s))
-                top)))
-      (define (initialize)
-          (set! s '())
-        'done)
-      (define (dispatch message)
-          (cond ((eq? message 'push) push)
-                ((eq? message 'pop) (pop))
-                ((eq? message 'initialize) (initialize))
-                (else (error "Unknown request -- STACK"
-                             message))))
-      dispatch))
-
-(define (pop stack)
-    (stack 'pop))
-(define (push stack value)
-    ((stack 'push) value))
-
-(define (make-new-machine)
-    (let ((pc (make-register 'pc))
-          (flag (make-register 'flag))
-          (stack (make-stack))
-          (the-instruction-sequence '()))
-      (let ((the-ops
-             (list (list 'initialize-stack
-                         (lambda () (stack 'initialize)))))
-            (register-table
-             (list (list 'pc pc) (list 'flag flag))))
-        (define (allocate-register name)
-            (if (assoc name register-table)
-                (error "Multiply defined register: " name)
-                (set! register-table
-                      (cons (list name (make-register name))
-                            register-table)))
-          'register-allocated)
-        (define (lookup-register name)
-            (let ((val (assoc name register-table)))
-              (if val
-                  (cadr val)
-                  (error "Unknown register:" name))))
-        (define (execute)
-            (let ((insts (get-contents pc)))
-              (if (null? insts)
-                  'done (begin
-                         ((instruction-execution-proc (car insts)))
-                         (execute)))))
-        (define (dispatch message)
-            (cond ((eq? message 'start)
-                   (set-contents! pc the-instruction-sequence)
-                   (execute))
-                  ((eq? message 'install-instruction-sequence)
-                   (lambda (seq) (set! the-instruction-sequence seq)))
-                  ((eq? message 'allocate-register) allocate-register)
-                  ((eq? message 'get-register) lookup-register)
-                  ((eq? message 'install-operations)
-                   (lambda (ops) (set! the-ops (append the-ops ops))))
-                  ((eq? message 'stack) stack)
-                  ((eq? message 'operations) the-ops)
-                  (else (error "Unknown request -- MACHINE" message))))
-        dispatch)))
-
-(define (start machine)
-    (machine 'start))
-
-(define (get-register-contents machine register-name)
-    (get-contents (get-register machine register-name)))
-(define (set-register-contents! machine register-name value)
-    (set-contents! (get-register machine register-name) value)
-  'done)
-
-(define (get-register machine reg-name)
-    ((machine 'get-register) reg-name))
+;; first ,write the simulator  (in ./machine.lisp)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; ch5.lisp ends here
