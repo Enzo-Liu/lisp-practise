@@ -7,9 +7,9 @@
 ;; Created: Thu Dec 11 14:39:16 2014 (+0800)
 ;; Version:
 ;; Package-Requires: ()
-;; Last-Updated: Sun Dec 14 11:35:05 2014 (+0800)
+;; Last-Updated: Wed Dec 24 22:45:04 2014 (+0800)
 ;;           By: Liu Enze
-;;     Update #: 26
+;;     Update #: 39
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -45,7 +45,7 @@
 ;;
 ;;; Code:
 
-(defmacro make-machine (registers ops controller-text)
+(defun make-machine (registers ops controller-text)
   (let ((machine (make-new-machine)))
     (mapcar #'(lambda (register-name)
                 (funcall
@@ -196,10 +196,9 @@
 (defun instruction-text (inst)
   (car inst))
 
-(defun instruction-execution-proc (inst) inst)
-
 (defun set-instruction-execution-proc! (inst proc)
-  (setf (cdr inst) proc))
+  (setf (cdr inst) proc)
+  inst)
 
 (defun make-label-entry (label-name insts)
   (cons label-name insts))
