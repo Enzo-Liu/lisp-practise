@@ -7,9 +7,9 @@
 ;; Created: Tue Dec  2 19:33:22 2014 (+0800)
 ;; Version:
 ;; Package-Requires: ()
-;; Last-Updated: Thu Dec 25 11:56:38 2014 (+0800)
-;;           By: Liu Enze
-;;     Update #: 47
+;; Last-Updated: Thu Dec 25 22:15:02 2014 (+0800)
+;;           By: 王 玉
+;;     Update #: 53
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -283,6 +283,146 @@
 ;;DONE
 (get-register-contents *m* 'val)
 ;;4
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Exercise 5.8.  The following register-machine code is ambiguous, because the
+;; label here is defined more than once:
+;; start
+;; (goto (label here))
+;; here
+;; (assign a (const 3))
+;; (goto (label there))
+;; here
+;; (assign a (const 4))
+;; (goto (label there))
+;; there
+;; With the simulator as written, what will the contents of register a be when
+;; control reaches there? Modify the extract-labels procedure so that the
+;; assembler will signal an error if the same label name is used to indicate two
+;; different locations.
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ANSWER:
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; start-->here(the first one,because assoc only matches the first 1) -->
+;; there
+;; so a is 3
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defparameter test-machine
+  (make-machine
+   '(a)
+   '()
+   '(start
+     (goto (label here))
+     here
+     (assign a (const 3))
+     (goto (label there))
+     here
+     (assign a (const 4))
+     (goto (label there))
+     there)))
+
+(start test-machine)
+;;DONE
+(get-register-contents test-machine 'a)
+;; 3
+
+
+(defun extract-labels (text receive)
+  (if (null text)
+      (funcall receive '() '())
+      (extract-labels (cdr text)
+                      (lambda (insts labels)
+                        (let ((next-inst (car text)))
+                          (if (symbolp next-inst)
+                              (funcall receive insts
+                                       (cons (make-label-entry
+                                              next-inst insts labels)
+                                             labels))
+                              (funcall receive (cons
+                                                (make-instruction
+                                                 next-inst)
+                                                insts)
+                                       labels)))))))
+
+(defun make-label-entry (label-name insts labels)
+  (when (assoc label-name labels)
+    (error "Duplicate label definition: ~S" label-name))
+  (cons label-name insts))
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Exercise 5.9.  The treatment of machine operations above permits them to
+;; operate on labels as well as on constants and the contents of
+;; registers. Modify the expression-processing procedures to enforce the
+;; condition that operations can be used only with registers and constants.
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Exercise 5.10.  Design a new syntax for register-machine instructions and
+;; modify the simulator to use your new syntax. Can you implement your new
+;; syntax without changing any part of the simulator except the syntax
+;; procedures in this section?
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Exercise 5.11.  When we introduced save and restore in section 5.1.4, we
+;; didn't specify what would happen if you tried to restore a register that was
+;; not the last one saved, as in the sequence
+
+;; (save y)
+;; (save x)
+;; (restore y)
+
+;; There are several reasonable possibilities for the meaning of restore:
+
+;; a.  (restore y) puts into y the last value saved on the stack, regardless of
+;; what register that value came from. This is the way our simulator
+;; behaves. Show how to take advantage of this behavior to eliminate one
+;; instruction from the Fibonacci machine of section 5.1.4 (figure 5.12).
+
+;; b.  (restore y) puts into y the last value saved on the stack, but only if
+;; that value was saved from y; otherwise, it signals an error. Modify the
+;; simulator to behave this way. You will have to change save to put the
+;; register name on the stack along with the value.
+
+;; c.  (restore y) puts into y the last value saved from y regardless of what
+;; other registers were saved after y and not restored. Modify the simulator to
+;; behave this way. You will have to associate a separate stack with each
+;; register. You should make the initialize-stack operation initialize all the
+;; register stacks.
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Exercise 5.12.  The simulator can be used to help determine the data paths
+;; required for implementing a machine with a given controller. Extend the
+;; assembler to store the following information in the machine model:
+
+;; a list of all instructions, with duplicates removed, sorted by instruction
+;; type (assign, goto, and so on);
+
+;; a list (without duplicates) of the registers used to hold entry points (these
+;; are the registers referenced by goto instructions);
+
+;; a list (without duplicates) of the registers that are saved or restored;
+
+;; for each register, a list (without duplicates) of the sources from which it
+;; is assigned (for example, the sources for register val in the factorial
+;; machine of figure 5.11 are (const 1) and ((op *) (reg n) (reg val))).
+
+;; Extend the message-passing interface to the machine to provide access to this
+;; new information. To test your analyzer, define the Fibonacci machine from
+;; figure 5.12 and examine the lists you constructed.
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Exercise 5.13.  Modify the simulator so that it uses the controller sequence
+;; to determine what registers the machine has rather than requiring a list of
+;; registers as an argument to make-machine. Instead of pre-allocating the
+;; registers in make-machine, you can allocate them one at a time when they are
+;; first seen during assembly of the instructions.
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; ch5.lisp ends here

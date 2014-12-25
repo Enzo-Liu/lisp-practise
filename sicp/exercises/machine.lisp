@@ -7,9 +7,9 @@
 ;; Created: Thu Dec 11 14:39:16 2014 (+0800)
 ;; Version:
 ;; Package-Requires: ()
-;; Last-Updated: Thu Dec 25 11:55:28 2014 (+0800)
-;;           By: Liu Enze
-;;     Update #: 42
+;; Last-Updated: Thu Dec 25 22:15:08 2014 (+0800)
+;;           By: 王 玉
+;;     Update #: 43
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -170,8 +170,7 @@
                           (if (symbolp next-inst)
                               (funcall receive insts
                                        (cons (make-label-entry
-                                              next-inst
-                                              insts)
+                                              next-inst insts labels)
                                              labels))
                               (funcall receive (cons
                                                 (make-instruction
@@ -200,7 +199,9 @@
   (setf (cdr inst) proc)
   inst)
 
-(defun make-label-entry (label-name insts)
+(defun make-label-entry (label-name insts labels)
+  (when (assoc label-name labels)
+    (error "Duplicate label definition: ~S" label-name))
   (cons label-name insts))
 
 (defun lookup-label (all-labels label-name)
