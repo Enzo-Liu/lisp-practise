@@ -7,9 +7,9 @@
 ;; Created: Tue Dec  2 19:33:22 2014 (+0800)
 ;; Version:
 ;; Package-Requires: ()
-;; Last-Updated: Thu Dec 11 14:48:29 2014 (+0800)
+;; Last-Updated: Thu Dec 25 11:56:38 2014 (+0800)
 ;;           By: Liu Enze
-;;     Update #: 42
+;;     Update #: 47
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -135,25 +135,26 @@
 (defun expt-machine ()
   (make-machine
    '(b n val continue)
-   (controller
-    (assign continue done)
-    expt-loop
-    (test (op #'=) (reg n) (const 0))
-    (branch (label answer))
-    (save continue)
-    (assign continue (label after-fib-n-1))
-    (save n)
-    (assign n (op -) (reg n) (const 1))
-    (goto (label expt-loop))
-    after-expt-n-1
-    (restore n)
-    (restore continue)
-    (assgn val (op #'*) (reg val) (reg b))
-    (goto (label (reg continue)))
-    answer
-    (assign val (const 1))
-    (goto (reg continue))
-    done)))
+   `((= ,#'=) (- ,#'-) (* ,#'*))
+   '(controller
+     (assign continue (label done))
+     expt-loop
+     (test (op =) (reg n) (const 0))
+     (branch (label answer))
+     (save continue)
+     (assign continue (label after-expt-n-1))
+     (save n)
+     (assign n (op -) (reg n) (const 1))
+     (goto (label expt-loop))
+     after-expt-n-1
+     (restore n)
+     (restore continue)
+     (assign val (op *) (reg val) (reg b))
+     (goto (reg continue))
+     answer
+     (assign val (const 1))
+     (goto (reg continue))
+     done)))
 
 (defun expt-iter-machine ()
   (make-machine
@@ -272,6 +273,16 @@
 ;; 5.4.
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; first ,write the simulator  (in ./machine.lisp)
+(load "./machine.lisp")
+(defparameter *m* (expt-machine))
+(set-register-contents *m* 'b 2)
+;;DONE
+(set-register-contents *m* 'n 2)
+;;DONE
+(start *m*)
+;;DONE
+(get-register-contents *m* 'val)
+;;4
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; ch5.lisp ends here

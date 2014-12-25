@@ -7,9 +7,9 @@
 ;; Created: Thu Dec 11 14:39:16 2014 (+0800)
 ;; Version:
 ;; Package-Requires: ()
-;; Last-Updated: Wed Dec 24 22:45:04 2014 (+0800)
+;; Last-Updated: Thu Dec 25 11:55:28 2014 (+0800)
 ;;           By: Liu Enze
-;;     Update #: 39
+;;     Update #: 42
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -296,14 +296,14 @@
   (let ((reg (get-register machine
                            (stack-inst-reg-name inst))))
     (lambda ()
-      (push (get-contents reg) stack)
+      (push-stack stack (get-contents reg))
       (advance-pc pc))))
 
 (defun make-restore (inst machine stack pc)
   (let ((reg (get-register machine
                            (stack-inst-reg-name inst))))
     (lambda ()
-      (set-contents reg (pop stack))
+      (set-contents reg (pop-stack stack))
       (advance-pc pc))))
 
 (defun stack-inst-reg-name (stack-instruction)
