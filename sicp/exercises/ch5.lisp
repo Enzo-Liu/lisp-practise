@@ -7,9 +7,9 @@
 ;; Created: Tue Dec  2 19:33:22 2014 (+0800)
 ;; Version:
 ;; Package-Requires: ()
-;; Last-Updated: Thu Dec 25 22:15:02 2014 (+0800)
+;; Last-Updated: Thu Dec 25 22:29:57 2014 (+0800)
 ;;           By: 王 玉
-;;     Update #: 53
+;;     Update #: 55
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -356,6 +356,14 @@
 ;; registers. Modify the expression-processing procedures to enforce the
 ;; condition that operations can be used only with registers and constants.
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun make-operation-exp (exp machine labels operations)
+  (let ((op (lookup-prim (operation-exp-op exp) operations))
+        (aprocs (mapcar (lambda (e)
+                          (when (label-exp e)
+                            (error "label-exp can not used in Operation: ~S" exp))
+                          (make-primitive-exp e machine labels))
+                        (operation-exp-operands exp))))
+    (lambda () (apply op (mapcar (lambda (p) (funcall p)) aprocs)))))
 
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -364,6 +372,7 @@
 ;; syntax without changing any part of the simulator except the syntax
 ;; procedures in this section?
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Exercise 5.11.  When we introduced save and restore in section 5.1.4, we
