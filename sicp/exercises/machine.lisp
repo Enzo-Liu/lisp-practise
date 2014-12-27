@@ -7,9 +7,9 @@
 ;; Created: Thu Dec 11 14:39:16 2014 (+0800)
 ;; Version:
 ;; Package-Requires: ()
-;; Last-Updated: Thu Dec 25 22:15:08 2014 (+0800)
+;; Last-Updated: Thu Dec 25 22:30:35 2014 (+0800)
 ;;           By: 王 玉
-;;     Update #: 43
+;;     Update #: 44
 ;; URL:
 ;; Doc URL:
 ;; Keywords:
@@ -353,7 +353,10 @@
 
 (defun make-operation-exp (exp machine labels operations)
   (let ((op (lookup-prim (operation-exp-op exp) operations))
-        (aprocs (mapcar (lambda (e) (make-primitive-exp e machine labels))
+        (aprocs (mapcar (lambda (e)
+                          (when (label-exp exp)
+                            (error "label-exp ~S can not used in Operation" exp))
+                          (make-primitive-exp e machine labels))
                         (operation-exp-operands exp))))
     (lambda () (apply op (mapcar (lambda (p) (funcall p)) aprocs)))))
 
